@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3AE9C72E2EAF1CEF00148E32 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 3AE9C72D2EAF1CEF00148E32 /* SnapKit */; };
+		3AE9C79C2EAF440200148E32 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 3AE9C79B2EAF440200148E32 /* SnapKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,7 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3AE9C72E2EAF1CEF00148E32 /* SnapKit in Frameworks */,
+				3AE9C79C2EAF440200148E32 /* SnapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -83,7 +83,7 @@
 			);
 			name = BookSearchApp;
 			packageProductDependencies = (
-				3AE9C72D2EAF1CEF00148E32 /* SnapKit */,
+				3AE9C79B2EAF440200148E32 /* SnapKit */,
 			);
 			productName = BookSearchApp;
 			productReference = 3AE9C6112EAEFF1D00148E32 /* BookSearchApp.app */;
@@ -114,7 +114,7 @@
 			mainGroup = 3AE9C6082EAEFF1D00148E32;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				3AE9C72C2EAF1CEF00148E32 /* XCRemoteSwiftPackageReference "SnapKit" */,
+				3AE9C79A2EAF440200148E32 /* XCRemoteSwiftPackageReference "SnapKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3AE9C6122EAEFF1D00148E32 /* Products */;
@@ -160,7 +160,6 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -187,7 +186,6 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -344,7 +342,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		3AE9C72C2EAF1CEF00148E32 /* XCRemoteSwiftPackageReference "SnapKit" */ = {
+		3AE9C79A2EAF440200148E32 /* XCRemoteSwiftPackageReference "SnapKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SnapKit/SnapKit.git";
 			requirement = {
@@ -355,9 +353,9 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		3AE9C72D2EAF1CEF00148E32 /* SnapKit */ = {
+		3AE9C79B2EAF440200148E32 /* SnapKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 3AE9C72C2EAF1CEF00148E32 /* XCRemoteSwiftPackageReference "SnapKit" */;
+			package = 3AE9C79A2EAF440200148E32 /* XCRemoteSwiftPackageReference "SnapKit" */;
 			productName = SnapKit;
 		};
 /* End XCSwiftPackageProductDependency section */

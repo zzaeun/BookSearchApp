@@ -178,7 +178,12 @@ class BookDetailViewController: UIViewController {
     }
     
     @objc func addBookToList() {
-        print("리스트에 추가하는 함수 구현합시다~")
-        dismiss(animated: true)
+        guard let book = self.book else { return }
+        // Alert 띄우기
+        let addAlert = UIAlertController(title: "[ \(book.title) ] 책 담기 완료!", message: nil, preferredStyle: .alert)
+        addAlert.addAction(UIAlertAction(title: "확인", style: .default) { [weak self] _ in
+            self?.dismiss(animated: true)
+        })
+        present(addAlert, animated: true)
     }
 }

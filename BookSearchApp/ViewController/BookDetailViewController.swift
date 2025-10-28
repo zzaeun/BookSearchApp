@@ -22,8 +22,15 @@ class BookDetailViewController: UIViewController {
     // 전체 내용을 담는 StackView (세로)
     private let mainStackView = UIStackView()
     
-    private let contentTitleLabel = UILabel() //
+    private let contentTitleLabel = UILabel() // "책 소개"
     private let contentLabel = UILabel()      // 책 내용
+    
+    // Floating Button
+    private let xButton = UIButton()
+    private let addButton = UIButton()
+    
+    // 플로팅 버튼을 묶기 위한 StackView (가로)
+    private let buttonStackView = UIStackView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -39,6 +46,7 @@ class BookDetailViewController: UIViewController {
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
         contentView.addSubview(mainStackView)
+        view.addSubview(buttonStackView)
 
         textInfoStackView.axis = .vertical
         textInfoStackView.spacing = 8
@@ -52,6 +60,10 @@ class BookDetailViewController: UIViewController {
         mainStackView.axis = .vertical
         mainStackView.spacing = 25
         mainStackView.alignment = .leading
+        
+        buttonStackView.axis = .horizontal
+        buttonStackView.spacing = 20
+        buttonStackView.distribution = .fill
         
         // 책 이미지
         bookImage.contentMode = .scaleAspectFit
@@ -79,6 +91,20 @@ class BookDetailViewController: UIViewController {
         contentLabel.font = .systemFont(ofSize: 16, weight: .regular)
         contentLabel.textColor = .systemGray
         contentLabel.numberOfLines = 0
+        
+        // x 버튼
+        xButton.setTitle("X", for: .normal)
+        xButton.titleLabel?.font = .systemFont(ofSize: 30, weight: .bold)
+        xButton.backgroundColor = .systemGray
+        xButton.layer.cornerRadius = 20
+        xButton.addTarget(self, action: #selector(dismissDetailView), for: .touchUpInside)
+        
+        // 담기 버튼
+        addButton.setTitle("담기", for: .normal)
+        addButton.titleLabel?.font = .systemFont(ofSize: 30, weight: .bold)
+        addButton.backgroundColor = .systemBlue
+        addButton.layer.cornerRadius = 20
+        addButton.addTarget(self, action: #selector(addBookToList), for: .touchUpInside)
     }
     
     // 해당 책 데이터 받기
@@ -128,5 +154,31 @@ class BookDetailViewController: UIViewController {
             $0.width.equalTo(120)
             $0.height.equalTo(180)
         }
+        
+        xButton.snp.makeConstraints {
+            $0.width.equalTo(90)
+            $0.height.equalTo(75)
+        }
+
+        addButton.snp.makeConstraints {
+            $0.width.equalTo(230)
+            $0.height.equalTo(75)
+        }
+        
+        [xButton, addButton].forEach { buttonStackView.addArrangedSubview($0) }
+        
+        buttonStackView.snp.makeConstraints {
+            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.bottom.equalTo(view.safeAreaLayoutGuide).inset(10)
+        }
+    }
+    
+    @objc func dismissDetailView() {
+        dismiss(animated: true)
+    }
+    
+    @objc func addBookToList() {
+        print("리스트에 추가하는 함수 구현합시다~")
+        dismiss(animated: true)
     }
 }

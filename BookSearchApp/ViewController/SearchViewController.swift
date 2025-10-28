@@ -5,13 +5,7 @@ import SnapKit
 class SearchViewController: UIViewController {
     
     private var collectionView: UICollectionView!
-    
-    // 더미 데이터
-    private let searchResults = [
-        ("책 먹는 여우", "프란치스카비어만", "14,000원"),
-        ("아몬드", "손원평", "18,000원"),
-        ("소년이 온다", "한강", "23,000원")
-    ]
+    private var searchResults: [Book] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,6 +41,40 @@ class SearchViewController: UIViewController {
         // 데이터소스 연결
         collectionView.dataSource = self
     }
+    
+    private func fetchBooks(keyword: String) {
+        let apiKey = "eb78786cfaab76e97ad0fed4f145f8e4"
+        guard let query = keyword.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+              let url = URL(string: "https://dapi.kakao.com/v3/search/book?query=\(query)") else { return }
+        
+        var request = URLRequest(url: url)
+        request.setValue("KakaoAK \(apiKey)", forHTTPHeaderField: "Authorization")
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("Network error:", error)
+                return
+            }
+            if let httpResponse = response as? HTTPURLResponse {
+                print("Status code:", httpResponse.statusCode)
+            }
+            guard let data = data else { return }
+
+            // 응답 raw JSON 확인
+            if let jsonString = String(data: data, encoding: .utf8) {
+                print("Response JSON:", jsonString)
+            }
+            do {
+                let decoded = try JSONDecoder().decode(BookResponse.self, from: data)
+                self.searchResults = decoded.documents
+                DispatchQueue.main.async {
+                    self.collectionView.reloadSections(IndexSet(integer: Section.searchResults.rawValue))
+                }
+            } catch {
+                print("Decoding error:", error)
+            }
+        }.resume()
+    }
 }
 
 extension SearchViewController: UICollectionViewDataSource {
@@ -59,13 +87,16 @@ extension SearchViewController: UICollectionViewDataSource {
         switch Section.allCases[indexPath.section] {
         case .searchBar:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchCell.identifier, for: indexPath) as! SearchCell
+            cell.searchBar.delegate = self
             return cell
             
         case .searchResults:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchResultCell.identifier, for: indexPath) as! SearchResultCell
-            let (title, detail, price) = searchResults[indexPath.item]
-            cell.configure(with: title, bookDetail: detail, price: price)
-            cell.backgroundColor = .secondarySystemBackground
+            let book = searchResults[indexPath.item]
+            let authors = book.authors.joined(separator: ", ")
+            let price = "\(book.price)원"
+            cell.configure(with: book.title, author: authors, price: price)
+            cell.backgroundColor = .systemBackground
             cell.layer.cornerRadius = 10
             return cell
         }
@@ -129,6 +160,13 @@ extension SearchViewController {
         )
         section.boundarySupplementaryItems = [header]
         return section
+    }
+}
+
+extension SearchViewController: UISearchBarDelegate {
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        guard let keyword = searchBar.text, !keyword.isEmpty else { return }
+        fetchBooks(keyword: keyword)
     }
 }
     // 추후 검색 결과 리스트의 아이템을 탭하면 modalSheet 띄우게 할 것

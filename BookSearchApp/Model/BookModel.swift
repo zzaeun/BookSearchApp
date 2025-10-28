@@ -9,4 +9,5 @@ struct Book: Decodable {
     let authors: [String]
     let price: Int
     let thumbnail: String?
+    let contents: String
 }

@@ -40,6 +40,7 @@ class SearchViewController: UIViewController {
         
         // 데이터소스 연결
         collectionView.dataSource = self
+        collectionView.delegate = self
     }
     
     private func fetchBooks(keyword: String) {
@@ -169,9 +170,24 @@ extension SearchViewController: UISearchBarDelegate {
         fetchBooks(keyword: keyword)
     }
 }
-    // 추후 검색 결과 리스트의 아이템을 탭하면 modalSheet 띄우게 할 것
-//    @objc func tapButton() {
-//        let bookDetailVC = BookDetailViewController()
-//        bookDetailVC.modalPresentationStyle = .pageSheet
-//        self.present(bookDetailVC, animated: true)
-//    }
+
+// cell 누르면 책 상세 정보 sheet 띄우기
+extension SearchViewController: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        // 검색 결과 섹션의 셀만 반응하게
+        guard Section.allCases[indexPath.section] == .searchResults else { return }
+            
+        // 선택된 셀에 해당하는 책 데이터 가져오기
+        let selectedBook = searchResults[indexPath.item]
+        
+        // BookDetailVC 인스턴스 생성 및 데이터 전달
+        let bookDetailVC = BookDetailViewController()
+        bookDetailVC.book = selectedBook
+        
+        // Sheet 형태로 띄우게 설정
+        bookDetailVC.modalPresentationStyle = .pageSheet
+        
+        // Sheet로 띄우기
+        present(bookDetailVC, animated: true)
+    }
+}

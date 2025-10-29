@@ -38,9 +38,23 @@ class ContainBookViewController: UIViewController {
     
     @objc func didTapAllDeleteButton() {
         let allDeleteAlert = UIAlertController(title: "담은 책 전부를 삭제하시겠습니까?", message: nil, preferredStyle: .alert)
-        allDeleteAlert.addAction(UIAlertAction(title: "아니오", style: .cancel))
-        allDeleteAlert.addAction(UIAlertAction(title: "네", style: .destructive))
         
+        let deleteAction = UIAlertAction(title: "네", style: .destructive) { [weak self] _ in
+            guard let self = self else { return }
+                
+            let success = self.deleteAllBooks()
+            self.collectionView.reloadData()
+            
+            if success {
+                let successAlert = UIAlertController(title: "삭제 완료", message: "담은 책 목록이 초기화 되었습니다.", preferredStyle: .alert)
+                successAlert.addAction(UIAlertAction(title: "확인", style: .default))
+                
+                self.present(successAlert, animated: true)
+            }
+        }
+        
+        allDeleteAlert.addAction(UIAlertAction(title: "아니오", style: .cancel))
+        allDeleteAlert.addAction(deleteAction)
         present(allDeleteAlert, animated: true)
     }
     
@@ -61,6 +75,31 @@ class ContainBookViewController: UIViewController {
             print("불러온 책 개수: \(containedBooks.count)개")
         } catch let error as NSError {
             print("Core Data Fetch 실패: \(error), \(error.userInfo)")
+        }
+    }
+    
+    // 데이터 전체 삭제
+    private func deleteAllBooks() -> Bool {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return false }
+        let context = appDelegate.persistentContainer.viewContext
+        
+        let fetchRequest: NSFetchRequest<BookModelEntity> = BookModelEntity.fetchRequest()
+        
+        do {
+            let booksToDelete = try context.fetch(fetchRequest)
+            
+            for book in booksToDelete {
+                context.delete(book)
+            }
+            
+            try context.save()
+            
+            self.containedBooks.removeAll()
+            print("데이터 전체 삭제 완료")
+            return true
+        } catch {
+            print("데이터 전체 삭제 실패: \(error)")
+            return false
         }
     }
     

@@ -19,7 +19,7 @@ class ContainBookViewController: UIViewController {
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+        super.viewDidAppear(animated)
         fetchBooks()
         collectionView.reloadData()
     }

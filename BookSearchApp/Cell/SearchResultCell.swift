@@ -1,8 +1,9 @@
 import UIKit
 
 enum Section: Int, CaseIterable {
-    case searchBar = 0 // 검색바가 들어갈 섹션
-    case searchResults = 1  // 검색 결과 리스트가 들어갈 섹션
+    case searchBar  // 검색바가 들어갈 섹션
+    case recentBooks  // 최근 본 책 섹션
+    case searchResults  // 검색 결과 리스트가 들어갈 섹션
 }
 
 // 검색 결과 셀

@@ -7,6 +7,21 @@ class SearchViewController: UIViewController {
     private var collectionView: UICollectionView!
     private var searchResults: [Book] = []
     
+    // 최근 본 책 임시 데이터
+    private var recentBooks: [Book] = [
+        Book(title: "책1", authors: ["작가1"], price: 10000, thumbnail: "https://via.placeholder.com/105x150/FF6347/FFFFFF?text=Book1", contents: "책1내용"),
+        Book(title: "책2", authors: ["작가2"], price: 20000, thumbnail: "https://via.placeholder.com/105x150/FF6347/FFFFFF?text=Book2", contents: "책2내용"),
+        Book(title: "책3", authors: ["작가3"], price: 30000, thumbnail: "https://via.placeholder.com/105x150/FF6347/FFFFFF?text=Book3", contents: "책1내용3"),
+        Book(title: "책4", authors: ["작가4"], price: 40000, thumbnail: "https://via.placeholder.com/105x150/FF6347/FFFFFF?text=Book4", contents: "책4내용"),
+        Book(title: "책5", authors: ["작가4"], price: 40000, thumbnail: "https://via.placeholder.com/105x150/FF6347/FFFFFF?text=Book4", contents: "책4내용"),
+        Book(title: "책6", authors: ["작가4"], price: 40000, thumbnail: "https://via.placeholder.com/105x150/FF6347/FFFFFF?text=Book4", contents: "책4내용"),
+        Book(title: "책7", authors: ["작가4"], price: 40000, thumbnail: "https://via.placeholder.com/105x150/FF6347/FFFFFF?text=Book4", contents: "책4내용"),
+        Book(title: "책8", authors: ["작가4"], price: 40000, thumbnail: "https://via.placeholder.com/105x150/FF6347/FFFFFF?text=Book4", contents: "책4내용"),
+        Book(title: "책9", authors: ["작가4"], price: 40000, thumbnail: "https://via.placeholder.com/105x150/FF6347/FFFFFF?text=Book4", contents: "책4내용"),
+        Book(title: "책10", authors: ["작가4"], price: 40000, thumbnail: "https://via.placeholder.com/105x150/FF6347/FFFFFF?text=Book4", contents: "책4내용")
+
+    ]
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "검색"
@@ -22,6 +37,8 @@ class SearchViewController: UIViewController {
                 return Self.createSearchBarSection()
             case .searchResults:
                 return Self.createResultsSection()
+            case .recentBooks:
+                return Self.createRecentBooksSection()
             }
         }
         
@@ -32,11 +49,21 @@ class SearchViewController: UIViewController {
             $0.edges.equalToSuperview()
         }
         
-        // 셀 & 헤더 등록
+        // 검색 셀 등록
         collectionView.register(SearchCell.self, forCellWithReuseIdentifier: "SearchCell")
+        
+        // 검색 결과 셀 & 헤더 등록
         collectionView.register(SearchResultCell.self, forCellWithReuseIdentifier: "SearchResultCell")
-        collectionView.register(ResultHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,withReuseIdentifier: ResultHeaderView.identifier
+        collectionView.register(ResultHeaderView.self,
+                                forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+                                withReuseIdentifier: ResultHeaderView.identifier
         )
+        
+        // 최근 본 책 셀 & 헤더 등록
+        collectionView.register(RecentBookCell.self, forCellWithReuseIdentifier: RecentBookCell.identifier)
+        collectionView.register(RecentBookHeaderView.self,
+                                forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+                                withReuseIdentifier: RecentBookHeaderView.identifier)
         
         // 데이터소스 연결
         collectionView.dataSource = self
@@ -100,6 +127,15 @@ extension SearchViewController: UICollectionViewDataSource {
             cell.backgroundColor = .systemBackground
             cell.layer.cornerRadius = 10
             return cell
+            
+        case .recentBooks:
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RecentBookCell.identifier, for: indexPath) as!
+            RecentBookCell
+            let book = recentBooks[indexPath.item]
+            // 이미지 URL 받아오는
+            cell.configure(with: book.thumbnail)
+            cell.backgroundColor = .systemBackground
+            return cell
         }
     }
     
@@ -109,6 +145,8 @@ extension SearchViewController: UICollectionViewDataSource {
             return 1
         case .searchResults:
             return searchResults.count
+        case .recentBooks:
+            return recentBooks.count
         }
     }
     
@@ -118,11 +156,19 @@ extension SearchViewController: UICollectionViewDataSource {
         switch Section.allCases[indexPath.section] {
         case .searchBar:
             return UICollectionReusableView()
+        
         case .searchResults:
             let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: ResultHeaderView.identifier, for: indexPath
             ) as! ResultHeaderView
             header.title.text = "검색 결과"
             return header
+        
+        case .recentBooks:
+            let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "RecentBookHeaderView", for: indexPath
+            ) as! RecentBookHeaderView
+            header.title.text = "최근 본 책"
+            return header
+            
         }
     }
 }
@@ -140,8 +186,7 @@ extension SearchViewController {
     }
     
     static func createResultsSection() -> NSCollectionLayoutSection {
-        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                              heightDimension: .estimated(80))
+        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(80))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         
         let group = NSCollectionLayoutGroup.vertical(layoutSize: itemSize, subitems: [item])
@@ -152,14 +197,34 @@ extension SearchViewController {
         section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 16, bottom: 20, trailing: 16)
         
         // 헤더 추가
-        let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                heightDimension: .absolute(44))
+        let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(44))
         let header = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: headerSize,
             elementKind: UICollectionView.elementKindSectionHeader,
             alignment: .top
         )
         section.boundarySupplementaryItems = [header]
+        return section
+    }
+    
+    static func createRecentBooksSection() -> NSCollectionLayoutSection {
+        let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(105), heightDimension: .absolute(150))
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: itemSize, subitems: [item])
+        let section = NSCollectionLayoutSection(group: group)
+        section.orthogonalScrollingBehavior = .continuous
+        section.interGroupSpacing = 12
+        section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 16, bottom: 20, trailing: 16)
+        
+        let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(44))
+        let header = NSCollectionLayoutBoundarySupplementaryItem(
+            layoutSize: headerSize,
+            elementKind: UICollectionView.elementKindSectionHeader,
+            alignment: .top
+        )
+        section.boundarySupplementaryItems = [header]
+        
         return section
     }
 }

@@ -103,6 +103,24 @@ class ContainBookViewController: UIViewController {
         }
     }
     
+    // 데이터 개별 삭제
+    private func deleteBook(at indexPath: IndexPath) {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+        let context = appDelegate.persistentContainer.viewContext
+        
+        let bookToDelete = containedBooks[indexPath.item]
+        context.delete(bookToDelete)
+        
+        do {
+            try context.save()
+            containedBooks.remove(at: indexPath.item)
+            collectionView.deleteItems(at: [indexPath])
+            print("개별 삭제 완료")
+        } catch {
+            print("개별 삭제 실패: \(error)")
+        }
+    }
+    
     // collectionView 설정 함수
     private func setupCollectionView() {
         let layout = UICollectionViewCompositionalLayout { sectionIndex, _ in
@@ -156,8 +174,19 @@ extension ContainBookViewController: UICollectionViewDelegate, UICollectionViewD
         let title = bookEntity.title ?? "제목 없음"
         let authors = bookEntity.authors ?? "작가 정보 없음"
         let price = "\(bookEntity.price)원"
-        
         cell.configure(with: title, author: authors, price: price)
         return cell
+    }
+    
+    // 길게 눌러서 삭제
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        let deleteAction = UIAction(title: "삭제", image: UIImage(systemName: "trash"), attributes: .destructive) { [weak self] _ in
+            guard let self = self else { return }
+            self.deleteBook(at: indexPath)
+        }
+        
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
+            UIMenu(title: "", children: [deleteAction])
+        }
     }
 }

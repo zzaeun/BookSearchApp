@@ -1,4 +1,5 @@
 import UIKit
+import CoreData
 import SnapKit
 
 // 검색 탭 뷰
@@ -8,19 +9,7 @@ class SearchViewController: UIViewController {
     private var searchResults: [Book] = []
     
     // 최근 본 책 임시 데이터
-    private var recentBooks: [Book] = [
-        Book(title: "책1", authors: ["작가1"], price: 10000, thumbnail: "https://via.placeholder.com/105x150/FF6347/FFFFFF?text=Book1", contents: "책1내용"),
-        Book(title: "책2", authors: ["작가2"], price: 20000, thumbnail: "https://via.placeholder.com/105x150/FF6347/FFFFFF?text=Book2", contents: "책2내용"),
-        Book(title: "책3", authors: ["작가3"], price: 30000, thumbnail: "https://via.placeholder.com/105x150/FF6347/FFFFFF?text=Book3", contents: "책1내용3"),
-        Book(title: "책4", authors: ["작가4"], price: 40000, thumbnail: "https://via.placeholder.com/105x150/FF6347/FFFFFF?text=Book4", contents: "책4내용"),
-        Book(title: "책5", authors: ["작가4"], price: 40000, thumbnail: "https://via.placeholder.com/105x150/FF6347/FFFFFF?text=Book4", contents: "책4내용"),
-        Book(title: "책6", authors: ["작가4"], price: 40000, thumbnail: "https://via.placeholder.com/105x150/FF6347/FFFFFF?text=Book4", contents: "책4내용"),
-        Book(title: "책7", authors: ["작가4"], price: 40000, thumbnail: "https://via.placeholder.com/105x150/FF6347/FFFFFF?text=Book4", contents: "책4내용"),
-        Book(title: "책8", authors: ["작가4"], price: 40000, thumbnail: "https://via.placeholder.com/105x150/FF6347/FFFFFF?text=Book4", contents: "책4내용"),
-        Book(title: "책9", authors: ["작가4"], price: 40000, thumbnail: "https://via.placeholder.com/105x150/FF6347/FFFFFF?text=Book4", contents: "책4내용"),
-        Book(title: "책10", authors: ["작가4"], price: 40000, thumbnail: "https://via.placeholder.com/105x150/FF6347/FFFFFF?text=Book4", contents: "책4내용")
-
-    ]
+    private var recentBooks: [Book] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,16 +18,29 @@ class SearchViewController: UIViewController {
         setupCollectionView()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        fetchRecentBooksFromCoreData()
+    }
+    
     private func setupCollectionView() {
         // Compositional Layout 정의
-        let layout = UICollectionViewCompositionalLayout { sectionIndex, _ in
-            switch Section.allCases[sectionIndex] {
+        let layout = UICollectionViewCompositionalLayout { [weak self] sectionIndex, _ in
+            guard let self = self else { return nil }
+            
+            let hasRecentBooks = !self.recentBooks.isEmpty
+            let visibleSections = Section.visibleSections(hasRecentBooks: hasRecentBooks)
+            
+            guard sectionIndex < visibleSections.count else { return nil }
+            let currentSection = visibleSections[sectionIndex]
+            
+            switch currentSection {
             case .searchBar:
                 return Self.createSearchBarSection()
-            case .searchResults:
-                return Self.createResultsSection()
             case .recentBooks:
                 return Self.createRecentBooksSection()
+            case .searchResults:
+                return Self.createResultsSection()
             }
         }
         
@@ -95,8 +97,17 @@ class SearchViewController: UIViewController {
             do {
                 let decoded = try JSONDecoder().decode(BookResponse.self, from: data)
                 self.searchResults = decoded.documents
+                
                 DispatchQueue.main.async {
-                    self.collectionView.reloadSections(IndexSet(integer: Section.searchResults.rawValue))
+                    let hasRecentBooks = !self.recentBooks.isEmpty
+                    let visibleSections = Section.visibleSections(hasRecentBooks: hasRecentBooks)
+                    
+                    if let searchResultsIndex = visibleSections.firstIndex(of: .searchResults) {
+                        self.collectionView.reloadSections(IndexSet(integer: searchResultsIndex))
+                    } else {
+                        self.collectionView.reloadData()
+                    }
+                
                 }
             } catch {
                 print("Decoding error:", error)
@@ -107,12 +118,18 @@ class SearchViewController: UIViewController {
 
 extension SearchViewController: UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return Section.allCases.count
+        let hasRecentBooks = !recentBooks.isEmpty
+        let visibleSections = Section.visibleSections(hasRecentBooks: hasRecentBooks)
+        return visibleSections.count
     }
     
     func collectionView(_ collectionView: UICollectionView,
                         cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        switch Section.allCases[indexPath.section] {
+        let hasRecentBooks = !recentBooks.isEmpty
+        let visibleSections = Section.visibleSections(hasRecentBooks: hasRecentBooks)
+        let currentSection = visibleSections[indexPath.section]
+        
+        switch currentSection {
         case .searchBar:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchCell.identifier, for: indexPath) as! SearchCell
             cell.searchBar.delegate = self
@@ -140,7 +157,11 @@ extension SearchViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        switch Section.allCases[section] {
+        let hasRecentBooks = !recentBooks.isEmpty
+        let visibleSections = Section.visibleSections(hasRecentBooks: hasRecentBooks)
+        let currentSection = visibleSections[section]
+        
+        switch currentSection {
         case .searchBar:
             return 1
         case .searchResults:
@@ -153,7 +174,12 @@ extension SearchViewController: UICollectionViewDataSource {
     // 헤더 설정
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         guard kind == UICollectionView.elementKindSectionHeader else { return UICollectionReusableView() }
-        switch Section.allCases[indexPath.section] {
+        
+        let hasRecentBooks = !recentBooks.isEmpty
+        let visibleSections = Section.visibleSections(hasRecentBooks: hasRecentBooks)
+        let currentSection = visibleSections[indexPath.section]
+        
+        switch currentSection {
         case .searchBar:
             return UICollectionReusableView()
         
@@ -239,8 +265,16 @@ extension SearchViewController: UISearchBarDelegate {
 // cell 누르면 책 상세 정보 sheet 띄우기
 extension SearchViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        // 현재 보이는 섹션 목록을 가져옴
+        let hasRecentBooks = !recentBooks.isEmpty
+        let visibleSections = Section.visibleSections(hasRecentBooks: hasRecentBooks)
+        
+        // 선택된 indexPath.section이 어떤 Section인지 확인
+        guard indexPath.section < visibleSections.count else { return }
+        let currentSection = visibleSections[indexPath.section]
+        
         // 검색 결과 섹션의 셀만 반응하게
-        guard Section.allCases[indexPath.section] == .searchResults else { return }
+        guard currentSection == .searchResults else { return }
             
         // 선택된 셀에 해당하는 책 데이터 가져오기
         let selectedBook = searchResults[indexPath.item]
@@ -254,5 +288,75 @@ extension SearchViewController: UICollectionViewDelegate {
         
         // Sheet로 띄우기
         present(bookDetailVC, animated: true)
+    }
+}
+
+// Core Data & RecentBooks
+extension SearchViewController {
+    // Core Data에서 최근 본 책 데이터를 불러와 recentBooks 배열에 할당
+    private func fetchRecentBooksFromCoreData() {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+        let context = appDelegate.persistentContainer.viewContext
+        
+        let fetchRequest: NSFetchRequest<BookModelEntity> = BookModelEntity.fetchRequest()
+        let sortDescriptor = NSSortDescriptor(key: "title", ascending: false)
+        fetchRequest.sortDescriptors = [sortDescriptor]
+        fetchRequest.fetchLimit = 10
+        
+        do {
+            let savedBooks = try context.fetch(fetchRequest)
+            
+            self.recentBooks = savedBooks.compactMap { entity in
+                // Core Data Entity를 Book 모델로 변환
+                guard let title = entity.title,
+                      let authorsString = entity.authors,
+                      let contents = entity.contents else {
+                    return nil
+                }
+                let price = Int(entity.price)
+                let authors = authorsString.components(separatedBy: ", ")
+                
+                return Book(title: title, authors: authors, price: price, thumbnail: entity.thumbnail, contents: contents)
+            }
+            DispatchQueue.main.async {
+                self.collectionView.reloadData()
+            }
+            
+        } catch let error as NSError {
+            print("CoreData 불러오기 실패")
+        }
+    }
+    
+    // 책을 Core Data에 저장 및 업데이트하는 메서드
+    private func saveRecentBookToCoreData(book: Book) {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+        let context = appDelegate.persistentContainer.viewContext
+        let fetchRequest: NSFetchRequest<BookModelEntity> = BookModelEntity.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "title == %@ AND authors == %@", book.title, book.authors.joined(separator: ", "))
+        
+        do {
+            let results = try context.fetch(fetchRequest)
+            let existingBook: BookModelEntity
+            
+            if let first = results.first {
+                existingBook = first
+            } else {
+                existingBook = BookModelEntity(context: context)
+                existingBook.title = book.title
+                existingBook.authors = book.authors.joined(separator: ", ")
+                existingBook.price = Int64(book.price)
+                existingBook.thumbnail = book.thumbnail
+                existingBook.contents = book.contents
+            }
+            
+            try context.save()
+        } catch let error as NSError {
+            print("Core Data 저장 실패")
+        }
+    }
+
+    // 상세 뷰 닫힐 때 호출되는 메인 로직
+    private func updateRecentBooks(with book: Book) {
+        saveRecentBookToCoreData(book: book)
     }
 }

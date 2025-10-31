@@ -1,11 +1,5 @@
 import UIKit
 
-enum Section: Int, CaseIterable {
-    case searchBar  // 검색바가 들어갈 섹션
-    case recentBooks  // 최근 본 책 섹션
-    case searchResults  // 검색 결과 리스트가 들어갈 섹션
-}
-
 // 검색 결과 셀
 // 검색 결과 아이템 (제목 + 텍스트 필드)
 class SearchResultCell: UICollectionViewCell {

@@ -3,8 +3,9 @@ import SnapKit
 import CoreData
 
 class BookDetailViewController: UIViewController {
-    
+    weak var delegate: BookDetailDelegate?
     var book: Book?
+    private var didSelectSave = false  // 담기 버튼 눌렀는지 여부 확인
     
     private let scrollView = UIScrollView() // 스크롤을 위한 스크롤 뷰
     private let contentView = UIView()      // 스크롤 뷰 내부의 컨텐츠 뷰
@@ -40,6 +41,17 @@ class BookDetailViewController: UIViewController {
         setupViews()
         setConstraints()
         configureUI()
+    }
+    
+    // 뷰가 닫힐 때 최근 본 책에 저장
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        // X 버튼일 때
+        if self.isBeingDismissed && !didSelectSave {
+            if let viewedBook = book {
+                self.delegate?.bookDetailDidDismiss(viewBook: viewedBook)
+            }
+        }
     }
     
     private func setupViews() {
@@ -181,35 +193,13 @@ class BookDetailViewController: UIViewController {
     @objc func addBookToList() {
         guard let book = self.book else { return }
         
-        // CoreData 저장
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { print("Error: AppDelegate 접근 실패")
-            return
-        }
-        let context = appDelegate.persistentContainer.viewContext
+        self.delegate?.bookDetailDidSelectSave(savedBook: book)
         
-        // 새로운 BookModelEntity 인스턴스 생성 및 데이터 할당
-        let newBook = BookModelEntity(context: context)
-        
-        // 엔티티 속성에 현재 책 정보 전달
-        newBook.title = book.title
-        newBook.authors = book.authors.joined(separator: ", ")
-        newBook.price = Int64(book.price)
-        newBook.thumbnail = book.thumbnail
-        newBook.contents = book.contents
-        
-        // Context 저장
-        do {
-            try context.save()
-            print("CoreData 저장 성공 \(book.title)")
-            
-            // 저장 성공 후 Alert 띄우기
-            let addAlert = UIAlertController(title: "[ \(book.title) ] 책 담기 완료!", message: nil, preferredStyle: .alert)
-            addAlert.addAction(UIAlertAction(title: "확인", style: .default) { [weak self] _ in
-                self?.dismiss(animated: true)
-            })
-            present(addAlert, animated: true)
-        } catch let error as NSError {
-            print("Core Data 저장 실패: \(error), \(error.userInfo)")
-        }
+        // 저장 성공 후 Alert 띄우기
+        let addAlert = UIAlertController(title: "[ \(book.title) ] 책 담기 완료!", message: nil, preferredStyle: .alert)
+        addAlert.addAction(UIAlertAction(title: "확인", style: .default) { [weak self] _ in
+            self?.dismiss(animated: true)
+        })
+        present(addAlert, animated: true)
     }
 }

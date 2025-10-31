@@ -2,6 +2,13 @@ import UIKit
 import CoreData
 import SnapKit
 
+protocol BookDetailDelegate: AnyObject {
+    // 책 상세 뷰 보기만 해도 호출
+    func bookDetailDidDismiss(viewBook: Book)
+    // 담기 버튼 누르면 호출
+    func bookDetailDidSelectSave(savedBook: Book)
+}
+
 // 검색 탭 뷰
 class SearchViewController: UIViewController {
     
@@ -113,6 +120,20 @@ class SearchViewController: UIViewController {
                 print("Decoding error:", error)
             }
         }.resume()
+    }
+}
+
+extension SearchViewController: BookDetailDelegate {
+    // 상세 뷰 닫힐 때 호출
+    func bookDetailDidDismiss(viewBook: Book) {
+        // 최근 본 책에 저장
+        self.saveRecentBookToCoreData(book: viewBook, isSaved: false)
+        self.fetchRecentBooksFromCoreData()
+    }
+    // 담기 눌렀을 때 호출
+    func bookDetailDidSelectSave(savedBook: Book) {
+        self.saveRecentBookToCoreData(book: savedBook, isSaved: true)
+        self.fetchRecentBooksFromCoreData()
     }
 }
 
@@ -283,6 +304,8 @@ extension SearchViewController: UICollectionViewDelegate {
         let bookDetailVC = BookDetailViewController()
         bookDetailVC.book = selectedBook
         
+        bookDetailVC.delegate = self
+        
         // Sheet 형태로 띄우게 설정
         bookDetailVC.modalPresentationStyle = .pageSheet
         
@@ -299,6 +322,7 @@ extension SearchViewController {
         let context = appDelegate.persistentContainer.viewContext
         
         let fetchRequest: NSFetchRequest<BookModelEntity> = BookModelEntity.fetchRequest()
+        
         let sortDescriptor = NSSortDescriptor(key: "title", ascending: false)
         fetchRequest.sortDescriptors = [sortDescriptor]
         fetchRequest.fetchLimit = 10
@@ -328,7 +352,7 @@ extension SearchViewController {
     }
     
     // 책을 Core Data에 저장 및 업데이트하는 메서드
-    private func saveRecentBookToCoreData(book: Book) {
+    private func saveRecentBookToCoreData(book: Book, isSaved: Bool) {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
         let context = appDelegate.persistentContainer.viewContext
         let fetchRequest: NSFetchRequest<BookModelEntity> = BookModelEntity.fetchRequest()
@@ -349,14 +373,17 @@ extension SearchViewController {
                 existingBook.contents = book.contents
             }
             
+            if isSaved == true {
+                existingBook.isSaved = true
+            } else {
+                if existingBook.isSaved != true {
+                    existingBook.isSaved = false
+                }
+            }
+            
             try context.save()
         } catch let error as NSError {
             print("Core Data 저장 실패")
         }
-    }
-
-    // 상세 뷰 닫힐 때 호출되는 메인 로직
-    private func updateRecentBooks(with book: Book) {
-        saveRecentBookToCoreData(book: book)
     }
 }

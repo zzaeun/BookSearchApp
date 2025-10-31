@@ -69,6 +69,8 @@ class ContainBookViewController: UIViewController {
         
         let fetchRequest: NSFetchRequest<BookModelEntity> = BookModelEntity.fetchRequest()
         
+        fetchRequest.predicate = NSPredicate(format: "isSaved == true")
+        
         do {
             self.containedBooks = try context.fetch(fetchRequest)
             

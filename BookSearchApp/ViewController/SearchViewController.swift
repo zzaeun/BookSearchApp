@@ -322,8 +322,7 @@ extension SearchViewController {
         let context = appDelegate.persistentContainer.viewContext
         
         let fetchRequest: NSFetchRequest<BookModelEntity> = BookModelEntity.fetchRequest()
-        
-        let sortDescriptor = NSSortDescriptor(key: "title", ascending: false)
+        let sortDescriptor = NSSortDescriptor(key: "createdAt", ascending: false)
         fetchRequest.sortDescriptors = [sortDescriptor]
         fetchRequest.fetchLimit = 10
         
@@ -372,6 +371,8 @@ extension SearchViewController {
                 existingBook.thumbnail = book.thumbnail
                 existingBook.contents = book.contents
             }
+            
+            existingBook.createdAt = Date()
             
             if isSaved == true {
                 existingBook.isSaved = true

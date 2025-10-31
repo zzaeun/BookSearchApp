@@ -25,8 +25,16 @@ class SearchViewController: UIViewController {
     
     private func setupCollectionView() {
         // Compositional Layout 정의
-        let layout = UICollectionViewCompositionalLayout { sectionIndex, _ in
-            switch Section.allCases[sectionIndex] {
+        let layout = UICollectionViewCompositionalLayout { [weak self] sectionIndex, _ in
+            guard let self = self else { return nil }
+            
+            let hasRecentBooks = !self.recentBooks.isEmpty
+            let visibleSections = Section.visibleSections(hasRecentBooks: hasRecentBooks)
+            
+            guard sectionIndex < visibleSections.count else { return nil }
+            let currentSection = visibleSections[sectionIndex]
+            
+            switch currentSection {
             case .searchBar:
                 return Self.createSearchBarSection()
             case .recentBooks:
@@ -89,8 +97,17 @@ class SearchViewController: UIViewController {
             do {
                 let decoded = try JSONDecoder().decode(BookResponse.self, from: data)
                 self.searchResults = decoded.documents
+                
                 DispatchQueue.main.async {
-                    self.collectionView.reloadSections(IndexSet(integer: Section.searchResults.rawValue))
+                    let hasRecentBooks = !self.recentBooks.isEmpty
+                    let visibleSections = Section.visibleSections(hasRecentBooks: hasRecentBooks)
+                    
+                    if let searchResultsIndex = visibleSections.firstIndex(of: .searchResults) {
+                        self.collectionView.reloadSections(IndexSet(integer: searchResultsIndex))
+                    } else {
+                        self.collectionView.reloadData()
+                    }
+                
                 }
             } catch {
                 print("Decoding error:", error)
@@ -101,12 +118,18 @@ class SearchViewController: UIViewController {
 
 extension SearchViewController: UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return Section.allCases.count
+        let hasRecentBooks = !recentBooks.isEmpty
+        let visibleSections = Section.visibleSections(hasRecentBooks: hasRecentBooks)
+        return visibleSections.count
     }
     
     func collectionView(_ collectionView: UICollectionView,
                         cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        switch Section.allCases[indexPath.section] {
+        let hasRecentBooks = !recentBooks.isEmpty
+        let visibleSections = Section.visibleSections(hasRecentBooks: hasRecentBooks)
+        let currentSection = visibleSections[indexPath.section]
+        
+        switch currentSection {
         case .searchBar:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SearchCell.identifier, for: indexPath) as! SearchCell
             cell.searchBar.delegate = self
@@ -134,7 +157,11 @@ extension SearchViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        switch Section.allCases[section] {
+        let hasRecentBooks = !recentBooks.isEmpty
+        let visibleSections = Section.visibleSections(hasRecentBooks: hasRecentBooks)
+        let currentSection = visibleSections[section]
+        
+        switch currentSection {
         case .searchBar:
             return 1
         case .searchResults:
@@ -147,7 +174,12 @@ extension SearchViewController: UICollectionViewDataSource {
     // 헤더 설정
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         guard kind == UICollectionView.elementKindSectionHeader else { return UICollectionReusableView() }
-        switch Section.allCases[indexPath.section] {
+        
+        let hasRecentBooks = !recentBooks.isEmpty
+        let visibleSections = Section.visibleSections(hasRecentBooks: hasRecentBooks)
+        let currentSection = visibleSections[indexPath.section]
+        
+        switch currentSection {
         case .searchBar:
             return UICollectionReusableView()
         
@@ -233,8 +265,16 @@ extension SearchViewController: UISearchBarDelegate {
 // cell 누르면 책 상세 정보 sheet 띄우기
 extension SearchViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        // 현재 보이는 섹션 목록을 가져옴
+        let hasRecentBooks = !recentBooks.isEmpty
+        let visibleSections = Section.visibleSections(hasRecentBooks: hasRecentBooks)
+        
+        // 선택된 indexPath.section이 어떤 Section인지 확인
+        guard indexPath.section < visibleSections.count else { return }
+        let currentSection = visibleSections[indexPath.section]
+        
         // 검색 결과 섹션의 셀만 반응하게
-        guard Section.allCases[indexPath.section] == .searchResults else { return }
+        guard currentSection == .searchResults else { return }
             
         // 선택된 셀에 해당하는 책 데이터 가져오기
         let selectedBook = searchResults[indexPath.item]
@@ -278,10 +318,10 @@ extension SearchViewController {
                 
                 return Book(title: title, authors: authors, price: price, thumbnail: entity.thumbnail, contents: contents)
             }
-            
-            if let recentBooksSectionIndex = Section.allCases.firstIndex(of: .recentBooks) {
-                collectionView.reloadSections(IndexSet(integer: recentBooksSectionIndex))
+            DispatchQueue.main.async {
+                self.collectionView.reloadData()
             }
+            
         } catch let error as NSError {
             print("CoreData 불러오기 실패")
         }

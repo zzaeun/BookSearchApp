@@ -6,12 +6,16 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		3AE9C79C2EAF440200148E32 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 3AE9C79B2EAF440200148E32 /* SnapKit */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		3AE9C6112EAEFF1D00148E32 /* BookSearchApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BookSearchApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		3AE9C6232EAEFF1E00148E32 /* Exceptions for "BookSearchApp" folder in "BookSearchApp" target */ = {
+		3A07AF952EB8319800174BA3 /* Exceptions for "BookSearchApp" folder in "BookSearchApp" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -24,7 +28,7 @@
 		3AE9C6132EAEFF1D00148E32 /* BookSearchApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				3AE9C6232EAEFF1E00148E32 /* Exceptions for "BookSearchApp" folder in "BookSearchApp" target */,
+				3A07AF952EB8319800174BA3 /* Exceptions for "BookSearchApp" folder in "BookSearchApp" target */,
 			);
 			path = BookSearchApp;
 			sourceTree = "<group>";
@@ -36,6 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3AE9C79C2EAF440200148E32 /* SnapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +83,7 @@
 			);
 			name = BookSearchApp;
 			packageProductDependencies = (
+				3AE9C79B2EAF440200148E32 /* SnapKit */,
 			);
 			productName = BookSearchApp;
 			productReference = 3AE9C6112EAEFF1D00148E32 /* BookSearchApp.app */;
@@ -107,6 +113,9 @@
 			);
 			mainGroup = 3AE9C6082EAEFF1D00148E32;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				3AE9C79A2EAF440200148E32 /* XCRemoteSwiftPackageReference "SnapKit" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3AE9C6122EAEFF1D00148E32 /* Products */;
 			projectDirPath = "";
@@ -331,6 +340,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		3AE9C79A2EAF440200148E32 /* XCRemoteSwiftPackageReference "SnapKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SnapKit/SnapKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.7.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		3AE9C79B2EAF440200148E32 /* SnapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3AE9C79A2EAF440200148E32 /* XCRemoteSwiftPackageReference "SnapKit" */;
+			productName = SnapKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 3AE9C6092EAEFF1D00148E32 /* Project object */;
 }

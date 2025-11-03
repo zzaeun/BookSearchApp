@@ -7,18 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3A568CF62EB1C66F007AB4FB /* BookModelEntity+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A568CF32EB1C66F007AB4FB /* BookModelEntity+CoreDataClass.swift */; };
 		3AE9C79C2EAF440200148E32 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 3AE9C79B2EAF440200148E32 /* SnapKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3A568CF32EB1C66F007AB4FB /* BookModelEntity+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BookModelEntity+CoreDataClass.swift"; sourceTree = "<group>"; };
 		3AE9C6112EAEFF1D00148E32 /* BookSearchApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BookSearchApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		3A07AF952EB8319800174BA3 /* Exceptions for "BookSearchApp" folder in "BookSearchApp" target */ = {
+		3AE9C6232EAEFF1E00148E32 /* Exceptions for "BookSearchApp" folder in "BookSearchApp" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				App/Info.plist,
+				Info.plist,
 			);
 			target = 3AE9C6102EAEFF1D00148E32 /* BookSearchApp */;
 		};
@@ -28,7 +30,7 @@
 		3AE9C6132EAEFF1D00148E32 /* BookSearchApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				3A07AF952EB8319800174BA3 /* Exceptions for "BookSearchApp" folder in "BookSearchApp" target */,
+				3AE9C6232EAEFF1E00148E32 /* Exceptions for "BookSearchApp" folder in "BookSearchApp" target */,
 			);
 			path = BookSearchApp;
 			sourceTree = "<group>";
@@ -50,6 +52,7 @@
 		3AE9C6082EAEFF1D00148E32 = {
 			isa = PBXGroup;
 			children = (
+				3A568CF32EB1C66F007AB4FB /* BookModelEntity+CoreDataClass.swift */,
 				3AE9C6132EAEFF1D00148E32 /* BookSearchApp */,
 				3AE9C6122EAEFF1D00148E32 /* Products */,
 			);
@@ -141,6 +144,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3A568CF62EB1C66F007AB4FB /* BookModelEntity+CoreDataClass.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

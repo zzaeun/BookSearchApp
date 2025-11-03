@@ -18,7 +18,7 @@
 		3A07AF952EB8319800174BA3 /* Exceptions for "BookSearchApp" folder in "BookSearchApp" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				App/Info.plist,
+				Info.plist,
 			);
 			target = 3AE9C6102EAEFF1D00148E32 /* BookSearchApp */;
 		};
